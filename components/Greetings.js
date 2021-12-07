@@ -1,5 +1,5 @@
-import React, {useEffect} from 'react'
-import { SafeAreaView, StyleSheet, Text, View,TouchableOpacity, Dimensions, Image } from 'react-native'
+import React, {useState,useEffect} from 'react'
+import { SafeAreaView, StyleSheet, Text, View,TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import { ThemeColours } from './ThemeColours';
 
@@ -8,6 +8,12 @@ import CarouselCards from './CarouselCards';
 export function Greetings (props){
     const navigation = useNavigation()
     const [index, setIndex] = React.useState(0)
+
+    useEffect( () => {
+        if( props.auth === true ) {
+          navigation.reset({ index: 0, routes: [ {name: 'Home'} ] })
+        }
+      }, [props.auth] )
 
     return (
         <SafeAreaView style={styles.container}>

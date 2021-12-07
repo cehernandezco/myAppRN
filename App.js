@@ -1,22 +1,33 @@
-import { StatusBar } from 'expo-status-bar';
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { StatusBar } from 'expo-status-bar'
+import React, { useState, useEffect } from 'react'
+import { StyleSheet, Text, View, SafeAreaView } from 'react-native'
+import { NavigationContainer } from '@react-navigation/native'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+
 // components
 import { Signup } from './components/Signup'
 import { Signin } from './components/Signin'
-import { Home } from './components/Home';
-import { Signout } from './components/Signout';
-import { Splash } from './components/Splash';
+import { Home } from './components/Home'
+import { Signout } from './components/Signout'
+import { Splash } from './components/Splash'
+
 import { ClientDetails } from './components/ClientDetails'
+import { AddClient } from './components/AddClient'
+import { ClientList } from './components/ClientList'
+
 import { Greetings } from './components/Greetings'
 
 // firebase
-import { firebaseConfig } from './Config';
+import { firebaseConfig } from './Config'
 import {initializeApp,} from 'firebase/app'
-import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth"
-import { ThemeColours } from './components/ThemeColours';
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  onAuthStateChanged, 
+  signInWithEmailAndPassword, 
+  signOut 
+} from "firebase/auth"
+import { ThemeColours } from './components/ThemeColours'
 
 import { 
   initializeFirestore, 
@@ -31,6 +42,7 @@ import {
   onSnapshot 
 } from 'firebase/firestore'
 
+
 const FBapp = initializeApp( firebaseConfig)
 const FSdb = initializeFirestore(FBapp, {useFetchStreams: false})
 const FBauth = getAuth()
@@ -39,11 +51,12 @@ const FBauth = getAuth()
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const[ auth, setAuth ] = useState()
-  const[ user, setUser ] = useState()
+  const[ auth, setAuth ] = useState(false)
+  const[ user, setUser ] = useState(null)
   const[ signupError, setSignupError ] = useState()
   const [signinError, setSigninError ] = useState()
-  const [ data, setData ] = useState()
+  const [ dataClient, setDataClient ] = useState()
+  const [ dataJob, setDataJob ] = useState()
 
   
 
@@ -52,6 +65,8 @@ export default function App() {
       if( user ){
         setAuth(true)
         setUser(user)
+        if( !dataJob ) { getJobData() }
+        if( !dataClient ) { getClientData() }
       }else{
         setAuth(false)
         setUser(null)
@@ -59,16 +74,26 @@ export default function App() {
     })
   })
 
-  const SignupHandler = ( email, password ) => {
-    setSignupError("")
-    const auth = getAuth()
-    createUserWithEmailAndPassword( auth, email, password )
-    .then( ( userCredential ) => { 
-      console.log(userCredential) 
-      setUser(userCredential)
+  const SignupHandler = ( email, password, firstName, lastName ) => {
+    setSignupError(null)
+    createUserWithEmailAndPassword( FBauth, email, password )
+    .then( () => { 
+      setDoc(doc(FSdb, 'users', FBauth.currentUser.uid), {
+        email: email,
+        firstname: firstName,
+        lastname: lastName,
+        admin: false,
+        
+      }) 
+      setUser(FBauth.currentUser.user)
       setAuth( true )
     } )
-    .catch( (error) => { setSignupError(error.message) })
+    .catch( (error) => { 
+      setSignupError(error.code)
+      setTimeout(() => {
+        setSignupError('')
+      }, 3000)
+    })
   }
 
   const SigninHandler = ( email, password ) => {
@@ -91,15 +116,15 @@ export default function App() {
     })
     .catch( (error) => { console.log(error.code) })
   }
-  const addClientData = async ( FScollection , data ) => {
+  const addJobData = async ( FScollection , data ) => {
     //adding data to a collection with automatic id
     //const ref = await addDoc( collection(FSdb, FScollection ), data )
-    const ref = await setDoc( doc( FSdb, `users/${user.uid}/documents/${ new Date().getTime() }`), data )
+    const ref = await setDoc( doc( FSdb, `users/${user.uid}/jobs/${ new Date().getTime() }`), data )
     //console.log( ref.id )
   }
-  const getClientData = () => {
+  const getJobData = () => {
     // console.log('...getting data', user)
-    const FSquery = query( collection( FSdb, `users/${user.uid}/documents`) )
+    const FSquery = query( collection( FSdb, `users/${user.uid}/jobs`) )
     const unsubscribe = onSnapshot( FSquery, ( querySnapshot ) => {
       let FSdata = []
       querySnapshot.forEach( (doc) => {
@@ -108,11 +133,11 @@ export default function App() {
         item.id = doc.id
         FSdata.push( item )
       })
-      setData( FSdata )
+      setDataJob( FSdata )
     })
   }
-  const getClientDetail = async ( id ) => {
-    const docRef = doc( FSdb, `users/${user.uid}/documents`, id )
+  const getJobDetail = async ( id ) => {
+    const docRef = doc( FSdb, `users/${user.uid}/jobs`, id )
     const docData = await getDoc( docRef )
     return new Promise( ( resolve, reject ) => {
       if( docData.exists() ) {
@@ -124,23 +149,59 @@ export default function App() {
         reject('no such document')
       }
     })
-    
+  }
+  const addClientData = async ( FScollection , data ) => {
+    //adding data to a collection with automatic id
+    //const ref = await addDoc( collection(FSdb, FScollection ), data )
+    const ref = await setDoc( doc( FSdb, `users/${user.uid}/clients/${ new Date().getTime() }`), data )
+    return new Promise( ( resolve, reject ) => {
+      if( ref.exists() ) {
+        resolve(ref)
+      }
+      else {
+        reject('no such document')
+      }
+    })
+    //console.log( ref.id )
+  }
+  const getClientData = () => {
+    // console.log('...getting data', user)
+    const FSquery = query( collection( FSdb, `users/${user.uid}/clients`) )
+    const unsubscribe = onSnapshot( FSquery, ( querySnapshot ) => {
+      let FSdata = []
+      querySnapshot.forEach( (doc) => {
+        let item = {}
+        item = doc.data()
+        item.id = doc.id
+        FSdata.push( item )
+      })
+      setDataClient( FSdata )
+    })
+  }
+  const getClientDetail = async ( id ) => {
+    const docRef = doc( FSdb, `users/${user.uid}/clients`, id )
+    const docData = await getDoc( docRef )
+    return new Promise( ( resolve, reject ) => {
+      if( docData.exists() ) {
+        let document = docData.data()
+        document.id = id
+        resolve( document )
+      }
+      else {
+        reject('no such document')
+      }
+    })
   }
 
 
 
   return (
+    
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: true}}>
-        {/* <Stack.Screen 
-          name="Signup" 
-          component={Signup} 
-          options={{ 
-            title: 'Sign up'
-          }}
-        /> */}
-        <Stack.Screen name="Splash">
-          { (props) => <Splash {...props} loadingText="Hello App" /> }
+      <Stack.Navigator screenOptions={{ headerShown: false}}>
+        
+        <Stack.Screen name="Splash" >
+          { (props) => <Splash {...props} loadingText="My Tracker Hours" /> }
         </Stack.Screen>
         <Stack.Screen name="Greetings">
           { (props) => <Greetings {...props} 
@@ -171,24 +232,52 @@ export default function App() {
             
           }}
         >
-        { (props) => <Signin {...props} auth={auth} handler={SigninHandler} error={signinError} />}
+        { (props) => 
+          <Signin {...props} 
+            auth={auth} 
+            handler={SigninHandler} 
+            error={signinError} />}
         </Stack.Screen>
         <Stack.Screen 
           name="Home" 
           options={{
             headerTitle: "Home",
-            headerRight: (props) => <Signout {...props} handler={SignoutHandler} />
+            headerRight: (props) => <Signout 
+              {...props} 
+              SignoutHandler={SignoutHandler} />
           }} >
-          { (props) => <Home {...props} auth={auth} signOutHandler={SignoutHandler} add={addClientData} data={ data } />
+          { (props) => <Home {...props} 
+            auth={auth} 
+            user = {user}
+            SignoutHandler={SignoutHandler} 
+            addClient={addClientData} dataClient={ dataClient } getClientDetail={getClientDetail}
+            addJob={addJobData} dataJob={ dataJob }  getJobDetail={getJobDetail}
+             />
           }
         </Stack.Screen>
-        <Stack.Screen name="Detail" options={{
-          headerTitle: "Item detail"
-        }}>
-          { (props) => <ClientDetails {...props} get={getClientDetail}  />  }
+        <Stack.Screen name="AddClient"
+          screenOptions={{headerShown:true}}
+          options={{
+            
+            headerTitle: "Add Client"}}
+        >
+          { (props) => <AddClient {...props} addClient={addClientData} /> }
+        </Stack.Screen>
+        <Stack.Screen name="ClientDetails"
+          options={{
+            headerTitle: "Item detail"}}
+        >
+          { (props) => <ClientDetails {...props} getClientDetail={getClientDetail} /> }
+        </Stack.Screen>
+        <Stack.Screen name="ClientList"
+          options={{
+            headerTitle: "Clients"}}
+        >
+          { (props) => <ClientList {...props} dataClient={dataClient} /> }
         </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
+    
   );
 }
 

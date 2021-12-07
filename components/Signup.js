@@ -5,12 +5,15 @@ import { ThemeColours } from './ThemeColours';
 import { Feedback } from './Feedback';
 
 export function Signup(props) {
-  const[validEmail, setValidEmail ] = useState( false )
-  const[validPassword,setValidPassword ] = useState( false )
-  const[validForm,setValidForm] = useState(false)
+  const [validEmail, setValidEmail ] = useState( false )
+  const [validPassword,setValidPassword ] = useState( false )
+  const [validForm,setValidForm] = useState(false)
 
-  const[email,setEmail] = useState()
-  const[password,setPassword] = useState()
+  const [email,setEmail] = useState()
+  const [password,setPassword] = useState()
+  const [firstName,setFirstName] = useState()
+  const [lastName,setLastName] = useState()
+  
 
   const navigation = useNavigation()
 
@@ -35,8 +38,8 @@ export function Signup(props) {
   }
 
   const submitHandler = () => {
-    console.log('submitting')
-    props.handler( email, password )
+    console.log('submitting Sign up')
+    props.handler( email, password, firstName, lastName)
   }
 
   useEffect( () => {
@@ -62,14 +65,22 @@ export function Signup(props) {
       >
       <View style={styles.inner}>
         <Text>Name</Text>
-        <TextInput style={styles.input} />
+        <TextInput 
+          style={styles.input} 
+          onChangeText={ (val) => setFirstName(val)}/>
+        <Text>Last Name</Text>
+        <TextInput 
+          style={styles.input} 
+          onChangeText={ (val) => setLastName(val)}/>
         <Text>Email</Text>
-        <TextInput style={styles.input} onChangeText={ (val) => validateEmail(val) }/>
+        <TextInput 
+          style={styles.input} 
+          onChangeText={ (val) => validateEmail(val) }/>
         <Text>Password</Text>
         <TextInput 
-        style={styles.input} 
-        onChangeText={ (val) => validatePassword(val) }
-        secureTextEntry={true} 
+          style={styles.input} 
+          onChangeText={ (val) => validatePassword(val) }
+          secureTextEntry={true} 
         />
         <TouchableOpacity 
           style={ (validForm) ? styles.button : styles.buttonDisabled} 

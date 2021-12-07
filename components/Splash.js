@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react'
-import { Text, View, StyleSheet, Button } from 'react-native'
+import { Text, View, StyleSheet, Button, Image } from 'react-native'
 import Constants from 'expo-constants'
 import { useNavigation } from '@react-navigation/native'
+
 
 export function Splash (props) {
   const navigation = useNavigation()
@@ -12,6 +13,10 @@ export function Splash (props) {
 
   return (
     <View style={styles.container}>
+      <Image
+        source={{uri: 'https://image.pngaaa.com/106/3816106-middle.png'}}
+        
+      />
       <Text>{ props.loadingText }</Text>
     </View>
   )
