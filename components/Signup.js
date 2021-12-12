@@ -42,6 +42,11 @@ export function Signup(props) {
     props.handler( email, password, firstName, lastName)
   }
 
+  const submitHandlerGoogle = () => {
+    console.log('submitting Sign up Google')
+    props.handlerGoogle()
+  }
+
   useEffect( () => {
     if(validEmail && validPassword) {
       setValidForm( true )
@@ -89,6 +94,15 @@ export function Signup(props) {
         >
           <Text style={styles.buttonText}>Sign up</Text>
         </TouchableOpacity>
+        {/*
+        <TouchableOpacity 
+          style={ styles.buttonGoogle } 
+          
+          onPress={ () => submitHandlerGoogle() }
+        >
+          <Text style={styles.buttonText}>Sign up with Google</Text>
+        </TouchableOpacity>
+        */}
         <Feedback message={props.error} error={true} />
         <Text>Already have an account?</Text>
         <Button title="Click here to sign in" onPress={() => navigation.navigate("Signin")} />
@@ -109,6 +123,12 @@ const styles = StyleSheet.create( {
   button: {
     marginVertical: 15,
     backgroundColor: ThemeColours.prussianblue,
+    padding: 10,
+    borderRadius: 10,
+  },
+  buttonGoogle: {
+    marginVertical: 15,
+    backgroundColor: 'red',
     padding: 10,
     borderRadius: 10,
   },

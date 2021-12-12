@@ -7,8 +7,24 @@ import { Feedback } from './Feedback';
 
 export function Signin ( props ) {
   const navigation = useNavigation()
+
+  const [validEmail, setValidEmail ] = useState( false )
   const [email, setEmail] = useState()
   const [password, setPassword] = useState()
+
+  const checkResetPassword = () => {
+    props.resetPassword(email)
+  }
+
+  const validateEmail = ( emailVal ) => {
+    if( emailVal.indexOf('@') > 0 ) {
+      setValidEmail( true )
+    }
+    else {
+      setValidEmail( false )
+    }
+    setEmail( emailVal )
+  }
 
   useEffect( () => {
     if( props.auth === true ) {
@@ -26,7 +42,7 @@ export function Signin ( props ) {
         <Text style={styles.font}>Email</Text>
         <TextInput 
             style={styles.input} 
-            onChangeText={ (val) => setEmail(val) } />
+            onChangeText={ (val) => validateEmail(val) } />
         <Text style={styles.font}>Password</Text>
         <TextInput style={styles.input} 
             secureTextEntry={true} 
@@ -36,8 +52,13 @@ export function Signin ( props ) {
           <Text style={styles.buttonText}>Log in</Text>
         </TouchableOpacity>
         <Feedback message={props.error} error={true} />
+        
+        <Button title="Reset Password" 
+          onPress={checkResetPassword}
+          disabled={ (validEmail) ? false : true } />
         <Text style={styles.font}>Don't have an account?</Text>
         <Button title="Sign up for an account" onPress={() => navigation.navigate("Signup")} />
+        
       </View>
       </KeyboardAvoidingView>
       

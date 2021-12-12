@@ -137,6 +137,7 @@ export function Home ( props ) {
             <Settings {...props} 
               SignoutHandler={props.SignoutHandler}
               user = {props.user}
+              emailVerificationHandler = {props.emailVerificationHandler}
             />}
         >
          

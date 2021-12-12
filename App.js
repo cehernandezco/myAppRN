@@ -35,7 +35,12 @@ import {
   createUserWithEmailAndPassword, 
   onAuthStateChanged, 
   signInWithEmailAndPassword, 
-  signOut 
+  signOut,
+  sendPasswordResetEmail,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithRedirect,
+  sendEmailVerification
 } from "firebase/auth"
 import { ThemeColours } from './components/ThemeColours'
 
@@ -61,6 +66,9 @@ const FSdb = initializeFirestore(FBapp, {useFetchStreams: false})
 const FBauth = getAuth()
 
 const Stack = createNativeStackNavigator();
+
+const provider = new GoogleAuthProvider();
+provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
 
 export default function App() {
   
@@ -135,6 +143,45 @@ export default function App() {
     }
   }
   
+  const signInWithPopupFunction = () => {
+    
+    signInWithPopup(FBauth, provider)
+      .then((result) => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken;
+        // The signed-in user info.
+        const user = result.user;
+        // ...
+      }).catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // The email of the user's account used.
+        const email = error.email;
+        // The AuthCredential type that was used.
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        // ...
+    })
+  }
+  const sendEmailVerificationHandler = () => {
+    sendEmailVerification(FBauth.currentUser)
+    .then(() => {
+      Alert.alert(
+        //This is title
+        'Verification email',
+         //This is body text
+         'We have sent an email',
+       [
+        {text: 'Done', onPress: () => console.log('Done Pressed'), style: 'cancel'},
+         
+       ],
+       { cancelable: false }
+       //on clicking out side, Alert will not dismiss
+     )
+    });
+  }
+  
   const SignupHandler = ( email, password, firstName, lastName ) => {
     setSignupError(null)
     createUserWithEmailAndPassword( FBauth, email, password )
@@ -176,6 +223,33 @@ export default function App() {
       setAuth(false)
     })
     .catch( (error) => { console.log(error.code) })
+  }
+
+  const resetPassword = (email) => {
+    let title = "Reset Password"
+    let textBody = "Check your email to reset your password"
+    let onActionButton = ""
+    sendPasswordResetEmail(FBauth, email)
+    .then(() => {
+      textBody = 'Check your email to reset your password'
+      
+    })
+    .catch((error) => {
+      textBody = 'Sorry, there\'s been an error\n' + error.message
+    })
+    Alert.alert(
+      //This is title
+     title,
+       //This is body text
+       textBody,
+     [
+      {text: 'Done', onPress: () => console.log('Done Pressed'), style: 'cancel'},
+       
+     ],
+     { cancelable: false }
+     //on clicking out side, Alert will not dismiss
+   )
+    
   }
   //#region Firebase Job functions
 
@@ -490,6 +564,7 @@ export default function App() {
               handler={SignupHandler} 
               auth={auth} 
               error={signupError} 
+              handlerGoogle = {signInWithPopupFunction}
             /> }
           </Stack.Screen>
           <Stack.Screen 
@@ -507,7 +582,8 @@ export default function App() {
             <Signin {...props} 
               auth={auth} 
               handler={SigninHandler} 
-              error={signinError} />}
+              error={signinError}
+              resetPassword={resetPassword} />}
           </Stack.Screen>
         </Stack.Group>
         <Stack.Group screenOptions={{headerShown:true}}
@@ -532,6 +608,8 @@ export default function App() {
               SignoutHandler={SignoutHandler} 
               addClient={addClientData} dataClient={ dataClient } getClientDetail={getClientDetail}
               addJob={addJobData} dataJob={ dataJob }  getJobDetail={getJobDetail}
+              resetPassword={resetPassword}
+              emailVerificationHandler = {sendEmailVerificationHandler}
               />
             }
           </Stack.Screen>
