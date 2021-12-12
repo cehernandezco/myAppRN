@@ -37,7 +37,7 @@ export function AddClient (props) {
   }, [validEmail, firstName, address])
 
   const submitHandler = () => {
-    console.log('submitting Client')
+    //console.log('submitting Client')
     const data = { 
       createdAt: new Date().getTime(), 
       firstName: firstName ,

@@ -6,6 +6,7 @@ import { ThemeColours } from './ThemeColours';
 import { Feedback } from './Feedback';
 
 import DatePicker from 'react-native-datepicker'
+//import { DropDown } from './DropDown';
 
 export function AddJob (props) {
   const [validEmail, setValidEmail ] = useState( false )
@@ -39,7 +40,7 @@ export function AddJob (props) {
   }, [name, client, date])
 
   const submitHandler = () => {
-    console.log('submitting Job')
+    //console.log('submitting Job')
     const data = { 
       createdAt: new Date().getTime(), 
       name: name ,
@@ -75,6 +76,9 @@ export function AddJob (props) {
             style={styles.input} 
             onChangeText={ (val) => setName(val)}/>
           <Text>Client</Text>
+          {/*
+          <DropDown label="Select client" data={props.dataClient} containerStyle={styles.dropDownStyle} onChangeText={setClient}/>
+          */}
           <TextInput 
             style={styles.input} 
             onChangeText={ (val) => setClient(val)}/>
@@ -208,4 +212,7 @@ const styles = StyleSheet.create( {
     textAlign: 'left',
     width: '100%',
   },
+  dropDownStyle:{
+    width: '100%',
+  }
 })

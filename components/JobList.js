@@ -9,10 +9,17 @@ import { Ionicons } from '@expo/vector-icons'
 export const WINDOW_WIDTH = Dimensions.get('window').width
 export function JobList (props) {
   const navigation = useNavigation()
+
   const onClick = (item) => {
     navigation.navigate(
         'JobDetails',
         {id: item.id, rate: item.rate, createdAt: item.createdAt, item:item}
+    )
+  }
+  const setAddHours = (item) => {
+    navigation.navigate(
+        'HourList',
+        {id: item.id, name: item.name, date:item.date, rate: item.rate, createdAt: item.createdAt, jobItem:item}
     )
   }
 
@@ -28,7 +35,7 @@ export function JobList (props) {
                     {item.name}
                 </Text>
                 <Text>
-                    Address: {item.address}
+                    Client: {item.client}
                 </Text>
                 <Text>
                     Date: {item.date}
@@ -44,7 +51,7 @@ export function JobList (props) {
             <View style={styles.iconView}>
               <TouchableOpacity 
                     style={styles.icon}
-                    onPress={ () => setAddHours() }
+                    onPress={ () => setAddHours(item) }
                 >
                     <Ionicons name="time" style={styles.icon} />
               </TouchableOpacity>

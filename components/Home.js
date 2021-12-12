@@ -70,6 +70,7 @@ export function Home ( props ) {
               <JobList {...props}
                 handler={props.AddJob} 
                 data={listDataJob}
+                dataClient={listDataClient}
                 getJobDetail = {props.getJobDetail}
               />
             }

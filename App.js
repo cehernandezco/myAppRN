@@ -20,6 +20,9 @@ import { JobDetails } from './components/JobDetails'
 import { AddJob } from './components/AddJob'
 import { JobList } from './components/JobList'
 
+import { AddHours } from './components/AddHours'
+import { HourList } from './components/HourList'
+
 import { Advertising } from './components/Advertising'
 
 import { Greetings } from './components/Greetings'
@@ -67,6 +70,7 @@ export default function App() {
   const [signinError, setSigninError ] = useState()
   const [ dataClient, setDataClient ] = useState()
   const [ dataJob, setDataJob ] = useState()
+  const [ dataJobHours, setDataJobHours ] = useState()
   
   
 
@@ -123,10 +127,15 @@ export default function App() {
         return <TouchableOpacity onPress={ () => navigation.navigate('ClientDetails') }>
                   <Text style={styles.buttonAdd}>Edit</Text>
                 </TouchableOpacity>
+      case 'HoursList':
+        return <TouchableOpacity onPress={ () => navigation.navigate('AddHours') }>
+                  <Text style={styles.buttonAdd}>Add</Text>
+                </TouchableOpacity>
+                
       
     }
   }
-
+  
   const SignupHandler = ( email, password, firstName, lastName ) => {
     setSignupError(null)
     createUserWithEmailAndPassword( FBauth, email, password )
@@ -261,7 +270,7 @@ export default function App() {
   //#endregion
   //#region Firebase editJob
   const editJob = async ( id, data, navigation ) => {
-    console.log(data)
+    
     const docRef = doc( FSdb, `users/${user.uid}/jobs`, id )
     await updateDoc(docRef,data)
     .then(function(){
@@ -285,7 +294,57 @@ export default function App() {
   //#endregion
  
   //#endregion
+  //#region Firebase getJobDetailHours
+  const getJobDetailHours = async ( jobId ) => {
+    console.log("getJobDetailHours:" + jobId)
+    const FSquery = query( collection( FSdb, `users/${user.uid}/jobs/${jobId}/hours`) )
+    const unsubscribe = onSnapshot( FSquery, ( querySnapshot ) => {
+      let FSdata = []
+      querySnapshot.forEach( (doc) => {
+        let item = {}
+        item = doc.data()
+        item.id = doc.id
+        FSdata.push( item )
+      })
+      setDataJobHours( FSdata )
+    })
+  }
+    
+  //#endregion
+  //#region Firebase AddJob
+  const addHoursData = async ( FScollection , data, jobId, navigation ) => {
+    let title = "Add Job"
+    let textBody = ""
+    let onActionButton = ""
 
+    //adding data to a collection with automatic id
+    //const ref = await addDoc( collection(FSdb, FScollection ), data )
+    //const ref = await setDoc( doc( FSdb, `users/${user.uid}/clients/${ new Date().getTime() }`), data )    
+    const ref = await setDoc( doc( collection(FSdb, `users/${user.uid}/jobs/${jobId}/hours/`)), data)
+    .then(function(){
+      
+      textBody = 'You have added extra information'
+      onActionButton = navigation.goBack
+    })
+    .catch((error) => {
+      textBody = 'Sorry, hours haven\'t been added\n' + error.message
+    })
+    
+    Alert.alert(
+      //This is title
+     title,
+       //This is body text
+       textBody,
+     [
+       {text: 'Done', onPress: () => onActionButton()},
+       
+     ],
+     { cancelable: false }
+     //on clicking out side, Alert will not dismiss
+   )
+  }
+  //#endregion
+  //#endregion
   //#region Firebase Client functions
 
   //#region Firebase addClient
@@ -380,7 +439,7 @@ export default function App() {
   //#region Firebase editClient
   const editClient = async ( id, data, navigation ) => {
     //const docRef = doc( FSdb, `users/${user.uid}/clients`, id )
-    console.log(data)
+    //console.log(data)
     const docRef = doc( FSdb, `users/${user.uid}/clients`, id )
     await updateDoc(docRef,data)
     .then(function(){
@@ -517,7 +576,7 @@ export default function App() {
               
             }}
           >
-            { (props) => <AddJob {...props} addJob={addJobData} /> }
+            { (props) => <AddJob {...props} addJob={addJobData} dataClient={ dataClient } /> }
           </Stack.Screen>
           <Stack.Screen 
             name="JobDetails"
@@ -532,6 +591,28 @@ export default function App() {
                 getJobDetail={getJobDetail} 
                 deleteJob={deleteJob}
                 editJob={editJob} 
+              /> 
+            }
+          </Stack.Screen>
+          <Stack.Screen name="HourList"
+            options={{
+              headerTitle: "Info",
+              title: "Info",            
+            }}
+          >
+            { (props) => <HourList {...props} getJobDetailHours={getJobDetailHours} dataJobHours={ dataJobHours }/> }
+          </Stack.Screen> 
+          <Stack.Screen 
+            name="AddHours"
+            options={{
+              headerTitle: "Add Hours",
+              title: "Add Hours",
+              
+            }}
+          >
+            { (props) => 
+              <AddHours {...props}
+                addHours={addHoursData}
               /> 
             }
           </Stack.Screen>
