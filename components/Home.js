@@ -7,18 +7,10 @@ import { Ionicons } from '@expo/vector-icons'
 
 // screens to show in Home
 import { Settings } from './Settings'
-
-import { ClientMain } from './ClientMain';
-
-import { AddJob } from './AddJob'
-import { JobDetails } from './JobDetails'
+//ClientMain not needed anymore
+//import { ClientMain } from './ClientMain';
 import { JobList } from './JobList'
-
-
-
-import { Signout } from './Signout';
 import { ClientList } from './ClientList';
-
 
 const Tab = createBottomTabNavigator()
 
@@ -38,13 +30,6 @@ export function Home ( props ) {
       },
     }
     
-
-    const AddJobHandler = () => { props.AddJob }
-    const AddClientHandler = () => { props.AddClient }
-    //const getClientDetail = () => { props.getClientDetail}
-
-    
-  
     useEffect( () => {
      if(!props.auth) {
       navigation.reset({ index: 0, routes: [ {name: 'Signin'} ] })
@@ -60,21 +45,7 @@ export function Home ( props ) {
     useEffect( () => {
       setlistDataJob( props.dataJob )
     }, [props.dataJob])
-  
-
-    const data = { time: new Date().getTime(), user: Math.random() * 100 }
-    const onAddClient = () => {
-      navigation.navigate('AddClient', {
-        handler: AddJobHandler})
-    }
     
-    const onAddJob = () => {
-      navigation.navigate('AddJob', {
-        handler: AddJobHandler})
-    }
-    
-  
-  
     return(
         
         <Tab.Navigator 
@@ -82,7 +53,7 @@ export function Home ( props ) {
             headerShown:false
           }}>
           <Tab.Screen
-            name="Jobs" 
+            name="JobList" 
             options={{
               transitionSpec: {
                 open: config,
@@ -95,8 +66,15 @@ export function Home ( props ) {
               ),
             
             }}
+            children={() => 
+              <JobList {...props}
+                handler={props.AddJob} 
+                data={listDataJob}
+                getJobDetail = {props.getJobDetail}
+              />
+            }
           >
-          { (props) => <JobList {...props} data={listDataJob} /> }
+          
         </Tab.Screen>
 
         {/*main screen for Clients */}

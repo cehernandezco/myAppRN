@@ -16,6 +16,10 @@ import { ClientDetails } from './components/ClientDetails'
 import { AddClient } from './components/AddClient'
 import { ClientList } from './components/ClientList'
 
+import { JobDetails } from './components/JobDetails'
+import { AddJob } from './components/AddJob'
+import { JobList } from './components/JobList'
+
 import { Advertising } from './components/Advertising'
 
 import { Greetings } from './components/Greetings'
@@ -84,10 +88,10 @@ export default function App() {
     // If the focused route is not found, we need to assume it's the initial screen
     // This can happen during if there hasn't been any navigation inside the screen
     // In our case, it's "Feed" as that's the first screen inside the navigator
-    const routeName = getFocusedRouteNameFromRoute(route) ?? 'Jobs';
+    const routeName = getFocusedRouteNameFromRoute(route) ?? 'JobList';
   
     switch (routeName) {
-      case 'Jobs':
+      case 'JobList':
         return 'Jobs';
       case 'ClientList':
         return 'Clients';
@@ -99,11 +103,11 @@ export default function App() {
     // If the focused route is not found, we need to assume it's the initial screen
     // This can happen during if there hasn't been any navigation inside the screen
     // In our case, it's "Feed" as that's the first screen inside the navigator
-    const routeName = getFocusedRouteNameFromRoute(route) ?? 'Jobs';
+    const routeName = getFocusedRouteNameFromRoute(route) ?? 'JobList';
     console.log(route)
     console.log(routeName)
     switch (routeName) {
-      case 'Jobs': 
+      case 'JobList': 
         return <TouchableOpacity onPress={ () => navigation.navigate('AddJob') }>
                 <Text style={styles.buttonAdd}>Add</Text>
               </TouchableOpacity>
@@ -165,12 +169,42 @@ export default function App() {
     })
     .catch( (error) => { console.log(error.code) })
   }
-  const addJobData = async ( FScollection , data ) => {
+  //#region Firebase Job functions
+
+  //#region Firebase AddJob
+  const addJobData = async ( FScollection , data, navigation ) => {
+    let title = "Add Job"
+    let textBody = ""
+    let onActionButton = ""
+
     //adding data to a collection with automatic id
     //const ref = await addDoc( collection(FSdb, FScollection ), data )
-    const ref = await setDoc( doc( FSdb, `users/${user.uid}/jobs/${ new Date().getTime() }`), data )
-    //console.log( ref.id )
+    //const ref = await setDoc( doc( FSdb, `users/${user.uid}/clients/${ new Date().getTime() }`), data )    
+    const ref = await setDoc( doc( collection(FSdb, `users/${user.uid}/jobs/`)), data)
+    .then(function(){
+      
+      textBody = 'Your new job has been added'
+      onActionButton = navigation.goBack
+    })
+    .catch((error) => {
+      textBody = 'Sorry, your new job hasn\'t been added\n' + error.message
+    })
+    
+    Alert.alert(
+      //This is title
+     title,
+       //This is body text
+       textBody,
+     [
+       {text: 'Done', onPress: () => onActionButton()},
+       
+     ],
+     { cancelable: false }
+     //on clicking out side, Alert will not dismiss
+   )
   }
+  //#endregion
+  //#region Firebase getJobList
   const getJobData = () => {
     // console.log('...getting data', user)
     const FSquery = query( collection( FSdb, `users/${user.uid}/jobs`) )
@@ -185,6 +219,8 @@ export default function App() {
       setDataJob( FSdata )
     })
   }
+  //#endregion
+  //#region Firebase getJobDetail
   const getJobDetail = async ( id ) => {
     const docRef = doc( FSdb, `users/${user.uid}/jobs`, id )
     const docData = await getDoc( docRef )
@@ -199,6 +235,60 @@ export default function App() {
       }
     })
   }
+  //#endregion
+  //#region Firebase deleteJob
+  const deleteJob = async ( id, navigation ) => {
+    //const docRef = doc( FSdb, `users/${user.uid}/clients`, id )
+    await deleteDoc(doc( FSdb, `users/${user.uid}/jobs`, id ))
+    .then(function(){
+      navigation.goBack()
+    })
+    .catch((error) => {
+      Alert.alert(
+        //This is title
+       'Delete job',
+         //This is body text
+         error.message,
+       [
+         {text: 'Done', onPress: () => onActionButton()},
+         
+       ],
+       { cancelable: false }
+       //on clicking out side, Alert will not dismiss
+      )
+    })
+  }
+  //#endregion
+  //#region Firebase editJob
+  const editJob = async ( id, data, navigation ) => {
+    console.log(data)
+    const docRef = doc( FSdb, `users/${user.uid}/jobs`, id )
+    await updateDoc(docRef,data)
+    .then(function(){
+      navigation.goBack()
+    })
+    .catch((error) => {
+      Alert.alert(
+        //This is title
+       'Edit job',
+         //This is body text
+         error.message,
+       [
+         {text: 'Done', onPress: () => onActionButton()},
+         
+       ],
+       { cancelable: false }
+       //on clicking out side, Alert will not dismiss
+      )
+    })
+  }
+  //#endregion
+ 
+  //#endregion
+
+  //#region Firebase Client functions
+
+  //#region Firebase addClient
   const addClientData = async ( FScollection , data , navigation) => {
     let title = "Add Client"
     let textBody = ""
@@ -230,9 +320,9 @@ export default function App() {
      //on clicking out side, Alert will not dismiss
    )
     
-    
-    //console.log( ref.id )
   }
+  //#endregion
+  //#region Firebase getClientList
   const getClientData = () => {
     // console.log('...getting data', user)
     const FSquery = query( collection( FSdb, `users/${user.uid}/clients`) )
@@ -247,6 +337,8 @@ export default function App() {
       setDataClient( FSdata )
     })
   }
+  //#endregion
+  //#region Firebase getClientDetail
   const getClientDetail = async ( id ) => {
     const docRef = doc( FSdb, `users/${user.uid}/clients`, id )
     const docData = await getDoc( docRef )
@@ -261,6 +353,8 @@ export default function App() {
       }
     })
   }
+  //#endregion
+  //#region Firebase deleteClient
   const deleteClient = async ( id, navigation ) => {
     //const docRef = doc( FSdb, `users/${user.uid}/clients`, id )
     await deleteDoc(doc( FSdb, `users/${user.uid}/clients`, id ))
@@ -282,6 +376,8 @@ export default function App() {
       )
     })
   }
+  //#endregion
+  //#region Firebase editClient
   const editClient = async ( id, data, navigation ) => {
     //const docRef = doc( FSdb, `users/${user.uid}/clients`, id )
     console.log(data)
@@ -305,6 +401,9 @@ export default function App() {
       )
     })
   }
+  //#endregion
+  
+  //#endregion
 
   return (
     
@@ -409,6 +508,42 @@ export default function App() {
           >
             { (props) => <ClientList {...props} dataClient={dataClient} /> }
           </Stack.Screen>
+          
+          <Stack.Screen 
+            name="AddJob"
+            options={{
+              title: "Add Job",
+              headerTitle: "Add Job",
+              
+            }}
+          >
+            { (props) => <AddJob {...props} addJob={addJobData} /> }
+          </Stack.Screen>
+          <Stack.Screen 
+            name="JobDetails"
+            options={{
+              headerTitle: "Job detail",
+              title: "Job Details",
+              
+            }}
+          >
+            { (props) => 
+              <JobDetails {...props} 
+                getJobDetail={getJobDetail} 
+                deleteJob={deleteJob}
+                editJob={editJob} 
+              /> 
+            }
+          </Stack.Screen>
+          <Stack.Screen name="JobList"
+            options={{
+              headerTitle: "Jobs",
+              title: "Jobs"
+            }}
+          >
+            { (props) => <JobList {...props} dataJob={dataJob} /> }
+          </Stack.Screen>
+
           <Stack.Screen
             name="Modal"
             component={Advertising}
