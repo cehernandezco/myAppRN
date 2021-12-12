@@ -3,13 +3,7 @@ import { Text, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Signout } from './Signout';
 
 export function Settings (props) {
-  useEffect( () => {
-    if(!props.auth) {
-     navigation.reset({ index: 0, routes: [ {name: 'Signin'} ] })
-    }
     
-   }, [props.auth])
-   
   
   return (
     <View style={styles.screen}>
