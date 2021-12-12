@@ -34,7 +34,6 @@ export function Home ( props ) {
      if(!props.auth) {
       navigation.reset({ index: 0, routes: [ {name: 'Signin'} ] })
      }
-     //console.log( props.user )
     }, [props.auth])
   
     useEffect( () => {
@@ -45,6 +44,7 @@ export function Home ( props ) {
     useEffect( () => {
       setlistDataJob( props.dataJob )
     }, [props.dataJob])
+
     
     return(
         

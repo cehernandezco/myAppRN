@@ -68,12 +68,11 @@ export default function App() {
   const[ user, setUser ] = useState(null)
   const[ signupError, setSignupError ] = useState()
   const [signinError, setSigninError ] = useState()
+  
   const [ dataClient, setDataClient ] = useState()
   const [ dataJob, setDataJob ] = useState()
   const [ dataJobHours, setDataJobHours ] = useState()
   
-  
-
   useEffect(() => {
     onAuthStateChanged( FBauth, (user) => {
       if( user ){
@@ -294,6 +293,8 @@ export default function App() {
   //#endregion
  
   //#endregion
+  
+  //#region Firebase Hours functions
   //#region Firebase getJobDetailHours
   const getJobDetailHours = async ( jobId ) => {
     console.log("getJobDetailHours:" + jobId)
@@ -311,7 +312,7 @@ export default function App() {
   }
     
   //#endregion
-  //#region Firebase AddJob
+  //#region Firebase AddJobHours
   const addHoursData = async ( FScollection , data, jobId, navigation ) => {
     let title = "Add Job"
     let textBody = ""
@@ -345,6 +346,7 @@ export default function App() {
   }
   //#endregion
   //#endregion
+
   //#region Firebase Client functions
 
   //#region Firebase addClient

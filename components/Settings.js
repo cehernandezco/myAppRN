@@ -1,12 +1,23 @@
-import React from 'react'
-import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
+import React, {useEffect,useState} from 'react'
+import { Text, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Signout } from './Signout';
 
 export function Settings (props) {
-
+  useEffect( () => {
+    if(!props.auth) {
+     navigation.reset({ index: 0, routes: [ {name: 'Signin'} ] })
+    }
+    
+   }, [props.auth])
+   
+  
   return (
     <View style={styles.screen}>
-      <Text>Hi </Text>
+      <Text>Hi {props.user.email}</Text>
+      <Image
+        source={{ uri: props.user.photoURL }}
+        style={styles.image}
+      />
       <TouchableOpacity
         style={styles.signOutButton}
         onPress={ () => props.SignoutHandler() }>
