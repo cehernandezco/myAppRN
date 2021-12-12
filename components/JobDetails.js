@@ -183,7 +183,7 @@ export function JobDetails ( props ) {
                             {buttonEdit}
                             
                         </TouchableOpacity>
-                        <Text style={styles.title}>Client details</Text>
+                        <Text style={styles.title}>Job details</Text>
                         <Text>Name:</Text>
                         <Text style={styles.input}>{data.name}</Text>
                         <Text>Client:</Text>
