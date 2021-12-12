@@ -1,6 +1,6 @@
 import React, {useState,useEffect} from 'react'
 import { View, Text, StyleSheet, Button, TextInput, TouchableOpacity, 
-  KeyboardAvoidingView, Platform } from "react-native";
+  KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import { ThemeColours } from './ThemeColours';
 import { Feedback } from './Feedback';
@@ -53,6 +53,7 @@ export function AddClient (props) {
 
   return (
     <View style={styles.container}>
+        <ScrollView>
       {/*
       <TouchableOpacity 
           style={(Platform.OS === "ios")?styles.visible:styles.visible}
@@ -63,45 +64,45 @@ export function AddClient (props) {
       */}
       
       <Text style={styles.title}>Add a new Client</Text>
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-      <View style={styles.inner}>
-        <Text>First Name</Text>
-        <TextInput 
-          style={styles.input} 
-          onChangeText={ (val) => setFirstName(val)}/>
-        <Text>Last Name</Text>
-        <TextInput 
-          style={styles.input} 
-          onChangeText={ (val) => setLastName(val)}/>
-        <Text>Email</Text>
-        <TextInput 
-          style={styles.input} 
-          onChangeText={ (val) => validateEmail(val) }/>
-        <Text>Address</Text>
-        <TextInput 
-          style={styles.input} 
-          onChangeText={ (val) => setAddress(val) }/>
-        <Text>Comments</Text>
-        <TextInput 
-          style={styles.input} 
-          onChangeText={ (val) => setComments(val) }
-          
-        />
-        <TouchableOpacity 
-          style={ (validForm) ? styles.button : styles.buttonDisabled} 
-          disabled={ (validForm) ? false : true }
-          onPress={ () => submitHandler() }
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-          <Text style={styles.buttonText}>Create</Text>
-        </TouchableOpacity>
-        <Feedback message={props.error} error={true} />
-        
-        
-      </View>
-      </KeyboardAvoidingView>
-      
+        <View style={styles.inner}>
+          <Text>First Name</Text>
+          <TextInput 
+            style={styles.input} 
+            onChangeText={ (val) => setFirstName(val)}/>
+          <Text>Last Name</Text>
+          <TextInput 
+            style={styles.input} 
+            onChangeText={ (val) => setLastName(val)}/>
+          <Text>Email</Text>
+          <TextInput 
+            style={styles.input} 
+            onChangeText={ (val) => validateEmail(val) }/>
+          <Text>Address</Text>
+          <TextInput 
+            style={styles.input} 
+            onChangeText={ (val) => setAddress(val) }/>
+          <Text>Comments</Text>
+          <TextInput 
+            style={styles.input} 
+            onChangeText={ (val) => setComments(val) }
+            
+          />
+          <TouchableOpacity 
+            style={ (validForm) ? styles.button : styles.buttonDisabled} 
+            disabled={ (validForm) ? false : true }
+            onPress={ () => submitHandler() }
+          >
+            <Text style={styles.buttonText}>Create</Text>
+          </TouchableOpacity>
+          <Feedback message={props.error} error={true} />
+          
+          
+        </View>
+        </KeyboardAvoidingView>
+      </ScrollView>
     </View>
   )
 }
@@ -158,6 +159,7 @@ const styles = StyleSheet.create( {
     fontSize:30,
     textAlign: 'center',
     paddingBottom:50,
+    paddingTop:30,
   },
   invisible:{
     display:'none'
