@@ -26,7 +26,17 @@ export function Home ( props ) {
     const navigation = useNavigation()
     const [ listDataClient, setlistDataClient ] = useState()
     const [ listDataJob, setlistDataJob ] = useState()
-    
+    const config = {
+      animation: 'timing',
+      config: {
+        stiffness: 1000,
+        damping: 500,
+        mass: 3,
+        overshootClamping: true,
+        restDisplacementThreshold: 0.01,
+        restSpeedThreshold: 0.01,
+      },
+    }
     
 
     const AddJobHandler = () => { props.AddJob }
@@ -67,22 +77,25 @@ export function Home ( props ) {
   
     return(
         
-        <Tab.Navigator screenOptions={{headerShown:true}}>
+        <Tab.Navigator 
+          screenOptions={{
+            headerShown:false
+          }}>
           <Tab.Screen
             name="Jobs" 
             options={{
+              transitionSpec: {
+                open: config,
+                close: config,
+              },
+              title:"Jobs",
+              tabBarLabel: "Jobs",
+              tabBarIcon: ({color,size}) => (
+                <Ionicons name="document" color={color} size={size} />
+              ),
             
-            tabBarLabel: "Jobs",
-            tabBarIcon: ({color,size}) => (
-              <Ionicons name="document" color={color} size={size} />
-            ),
-            headerRight: ({color,size}) => (
-              <TouchableOpacity onPress={ () => onAddJob }>
-                <Text style={styles.buttonAdd}>Add</Text>
-              </TouchableOpacity>
-            ),
-          }}
-        >
+            }}
+          >
           { (props) => <JobList {...props} data={listDataJob} /> }
         </Tab.Screen>
 
@@ -112,15 +125,12 @@ export function Home ( props ) {
             options={{
               headerTitle: "Clients",
               tabBarLabel: "Clients",
-              
+              title: "Clients",
+                            
               tabBarIcon: ({color,size}) => (
                 <Ionicons name="body" color={color} size={size} />
               ),
-              headerRight: ({color,size}) => (
-                <TouchableOpacity onPress={ () => onAddClient() }>
-                  <Text style={styles.buttonAdd}>Add</Text>
-                </TouchableOpacity>
-              ),
+              
             }}
             children={() => 
               <ClientList {...props}
@@ -138,6 +148,7 @@ export function Home ( props ) {
           name="Settings"           
           options={{
             tabBarLabel: "Settings",
+            title:"Settings",
             tabBarIcon: ({color,size}) => (
               <Ionicons name="settings" color={color} size={size} />
               
@@ -153,16 +164,7 @@ export function Home ( props ) {
         </Tab.Screen>
         
     </Tab.Navigator>
-    /*
-        <View >
-            <Text></Text>
-            <TouchableOpacity style={styles.button} onPress={ () => { props.add('cities', data ) }}>
-            <Text>Add something</Text>
-            </TouchableOpacity>
-            <FlatList data={ listDataClient } renderItem={ renderItem} keyExtractor={item => item.id} />
-        </View>
-      */ 
-      
+          
     )
   }
   

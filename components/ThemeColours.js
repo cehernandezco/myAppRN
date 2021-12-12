@@ -10,4 +10,6 @@ export const ThemeColours = {
     blackcoral: 'hsla(208, 31%, 35%, 1)',
     shadowblue: 'hsla(214, 25%, 56%, 1)',
     eggshell: 'hsla(47, 44%, 89%, 1)',
+    gray: 'hsla(215, 10%, 68%, 1)',
+    red: 'hsla(355, 94%, 35%, 1)',
   }

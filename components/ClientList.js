@@ -1,9 +1,10 @@
 import React, {useEffect,useState} from 'react'
 import { StyleSheet, Text, View, FlatList, Pressable } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
-
+import Moment from 'moment'
 import EmptyClientList from './EmptyClientList'
 import Item from './Item'
+import { ThemeColours } from './ThemeColours';
 
 export function ClientList (props) {
     const navigation = useNavigation()
@@ -29,8 +30,8 @@ export function ClientList (props) {
             <Text>
                 Address: {item.address}
             </Text>
-            <Text>
-                id: {item.id}
+            <Text style={styles.createdAt}>
+                Created: {Moment(item.createdAt).format("DD MMM YYYY, H:mma")}
             </Text>
             </Pressable>
         </View>
@@ -58,5 +59,9 @@ const styles = StyleSheet.create({
       name: {
         fontSize:20,
         
+      },
+      createdAt: {
+        fontSize:12,
+        color: ThemeColours.gray, 
       },
 })
